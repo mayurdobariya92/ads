@@ -2,8 +2,13 @@ import 'dart:io';
 
 import 'package:ads/banner_ads.dart';
 import 'package:ads/main.dart';
+import 'package:ads/nativeads.dart';
+import 'package:ads/rewardads.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+import 'app_lifecycle_reactor.dart';
+import 'app_open_ad_manager.dart';
 
 class interads extends StatefulWidget {
   const interads({Key? key}) : super(key: key);
@@ -23,10 +28,16 @@ class _interadsState extends State<interads> {
   int _numInterstitialLoadAttempts = 0;
   
   int inter=0;
+  late AppLifecycleReactor _appLifecycleReactor;
 
   @override
   void initState() {
     super.initState();
+
+    AppOpenAdManager appOpenAdManager = AppOpenAdManager()..loadAd();
+    _appLifecycleReactor = AppLifecycleReactor(
+        appOpenAdManager: appOpenAdManager);
+    _appLifecycleReactor.listenToAppStateChanges();
     _createInterstitialAd();
 
   }
@@ -63,6 +74,18 @@ class _interadsState extends State<interads> {
             return banner_ads();
           },));
         }
+      else if (inter==2)
+      {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return nativeads();
+        },));
+      }
+      else if (inter==3)
+      {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return rewardads();
+        },));
+      }
       return;
     }
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
@@ -75,6 +98,18 @@ class _interadsState extends State<interads> {
         {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return banner_ads();
+          },));
+        }
+        else if (inter==2)
+        {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return nativeads();
+          },));
+        }
+        else if (inter==3)
+        {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return rewardads();
           },));
         }
         _createInterstitialAd();
@@ -97,7 +132,16 @@ class _interadsState extends State<interads> {
           ElevatedButton(onPressed: () {
             inter=1;
             _showInterstitialAd();
-          }, child: Text("Banner"))
+          }, child: Text("Banner")),
+          ElevatedButton(onPressed: () {
+            inter=2;
+            _showInterstitialAd();
+          }, child: Text("Native")),
+
+          ElevatedButton(onPressed: () {
+            inter=3;
+            _showInterstitialAd();
+          }, child: Text("Reward"))
         ],
       ),
       
